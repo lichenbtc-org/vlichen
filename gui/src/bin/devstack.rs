@@ -6,7 +6,7 @@
 //! another history.
 //!
 //! It writes `<dir>/devstack.json`, the GUI's connection for it:
-//! `vvlichen-gui --devstack <dir>/devstack.json`.
+//! `vlichen-gui --devstack <dir>/devstack.json`.
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -133,7 +133,7 @@ fn main() -> Result<()> {
     });
 
     println!("the devstack: sequencer {}, hub {}, faucet http://{}", seq.url, hub.url, args.faucet);
-    println!("the GUI's connection: vvlichen-gui --devstack {}", file.display());
+    println!("the GUI's connection: vlichen-gui --devstack {}", file.display());
     for mut req in faucet.incoming_requests() {
         let mut body = String::new();
         let _ = std::io::Read::read_to_string(req.as_reader(), &mut body);
