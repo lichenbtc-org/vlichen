@@ -35,9 +35,9 @@ struct Args {
 fn default_dir() -> Result<PathBuf> {
     let home = PathBuf::from(std::env::var("HOME").context("HOME")?);
     Ok(if cfg!(target_os = "macos") {
-        home.join("Library/Application Support/lichen-gui")
+        home.join("Library/Application Support/vlichen-gui")
     } else {
-        std::env::var("XDG_DATA_HOME").map(PathBuf::from).unwrap_or_else(|_| home.join(".local/share")).join("lichen-gui")
+        std::env::var("XDG_DATA_HOME").map(PathBuf::from).unwrap_or_else(|_| home.join(".local/share")).join("vlichen-gui")
     })
 }
 
