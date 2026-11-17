@@ -1,0 +1,40 @@
+[package]
+name = "vlichen-wallet"
+description = "vlichen's wallet: the validity rollup's account on a lichen wallet"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "vlichen"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+bitcoin.workspace = true
+clap.workspace = true
+hex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+ureq.workspace = true
+vlichen-ledger.workspace = true
+vlichen-shielded.workspace = true
+vlichen-validity.workspace = true
+vlichen-withdraw.workspace = true
+vlichen-l2.workspace = true
+vlichen-proto.workspace = true
+lichen-contract.workspace = true
+lichen-chain.workspace = true
+lichen-proto.workspace = true
+lichen-babe.workspace = true
+lichen-wallet.workspace = true
+lichen-btc.workspace = true
+lichen-wots.workspace = true
+chacha20poly1305 = "0.10"
+rand_chacha = "0.3"
+rand_core = "0.6"
+
+[dev-dependencies]
+vlichen-sequencer.workspace = true
+vlichen-validity.workspace = true

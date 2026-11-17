@@ -1,0 +1,51 @@
+[workspace]
+resolver = "2"
+exclude = ["r0", "m", "staging"]
+members = ["crates/ledger", "crates/shielded", "crates/validity", "crates/withdraw", "crates/l2", "crates/sequencer", "crates/proto", "crates/hub", "crates/wallet"]
+
+[workspace.package]
+# vlichen's own (its crates' versions are in the guests' ELFs, so their
+# image ids: a change here is a new deployment)
+version = "0.5.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+anyhow = "1"
+bitcoin = { version = "0.32", features = ["serde"] }
+bitcoincore-rpc = "0.19"
+clap = { version = "4", features = ["derive"] }
+getrandom = "0.2"
+hex = "0.4"
+k256 = { version = "0.13", features = ["schnorr"] }
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = "1"
+sha2 = "0.10"
+tiny_http = "0.12"
+ureq = { version = "2", features = ["json"] }
+vlichen-ledger = { path = "crates/ledger" }
+vlichen-shielded = { path = "crates/shielded" }
+vlichen-validity = { path = "crates/validity" }
+vlichen-withdraw = { path = "crates/withdraw" }
+vlichen-l2 = { path = "crates/l2" }
+vlichen-sequencer = { path = "crates/sequencer" }
+vlichen-proto = { path = "crates/proto" }
+vlichen-hub = { path = "crates/hub" }
+vlichen-wallet = { path = "crates/wallet" }
+# lichen, the base (by path while local; by git at publication)
+lichen-contract = { path = "../lichen-base/crates/contract" }
+lichen-chain = { path = "../lichen-base/crates/chain" }
+lichen-proto = { path = "../lichen-base/crates/proto" }
+lichen-babe = { path = "../lichen-base/crates/babe" }
+lichen-hub = { path = "../lichen-base/crates/hub" }
+lichen-wallet = { path = "../lichen-base/crates/wallet" }
+# the Bitcoin layer (lichenbtc-org/lichen-btc), as lichen pins it
+lichen-btc = { git = "https://github.com/lichenbtc-org/lichen-btc", rev = "d7d2de04f7f8d51b44f61a68c7e1789f36502071" }
+lichen-wots = { git = "https://github.com/lichenbtc-org/lichen-btc", rev = "d7d2de04f7f8d51b44f61a68c7e1789f36502071" }
+
+# Dependencies (lichen's crates among them) optimised even in debug
+# builds: the pre-signing, the garbling and the curve arithmetic are too
+# slow at opt-level 0 for a hub to answer within a move's window in the
+# tests. Our own crates stay at debug for fast rebuilds.
+[profile.dev.package."*"]
+opt-level = 2

@@ -1,0 +1,36 @@
+[package]
+name = "vlichen-hub"
+description = "vlichen's hub: the validity rollup on a lichen hub"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "vlichen-hub"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+bitcoin.workspace = true
+clap.workspace = true
+hex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tiny_http.workspace = true
+vlichen-ledger.workspace = true
+vlichen-withdraw.workspace = true
+vlichen-l2.workspace = true
+vlichen-proto.workspace = true
+lichen-contract.workspace = true
+lichen-chain.workspace = true
+lichen-proto.workspace = true
+lichen-babe.workspace = true
+lichen-hub.workspace = true
+lichen-btc.workspace = true
+
+[dev-dependencies]
+bitcoincore-rpc.workspace = true
+vlichen-sequencer.workspace = true
+vlichen-validity.workspace = true
+vlichen-wallet.workspace = true
+lichen-wallet.workspace = true

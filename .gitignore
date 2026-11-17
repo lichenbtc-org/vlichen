@@ -1,0 +1,16 @@
+target/
+target-*/
+.DS_Store
+*.log
+# local staging of the split (master's tree), not published
+/m/
+/staging/
+# a local run's files: wallets (they hold secrets), their dispute dirs, claims
+/*.json
+/*.d/
+/*.hex
+# the deployment's state and secrets
+deploy/.env
+deploy/state/
+# planning notes, kept locally, not published
+/docs/*PLAN.md
