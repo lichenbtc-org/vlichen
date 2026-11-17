@@ -23,10 +23,7 @@ the start: check the ones it shows you), and which statement the hub runs
 
 **Deployments.** None runs this repo's code yet. When there is one, it is
 listed here with its network, URLs, keys, statement and the app version
-that goes with it. (The Mutinynet deployment at
-`https://thimbly.org/lichen/mutinynet/{hub,sequencer}` runs lichen
-v0.4.5, from before the split: its guests aren't this repo's, and this
-wallet refuses it.)
+that goes with it.
 
 ### The app
 
