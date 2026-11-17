@@ -1,63 +1,41 @@
-# lichen-gui
+# vlichen-gui
 
-A lichen wallet as a page in your browser, for Mac and Linux laptops, and
-as an app (Android, and the desktop): see "The app" below.
-`lichen-gui` serves the page on 127.0.0.1 only and opens your browser at
+The vlichen wallet as a page in your browser, for Mac and Linux laptops,
+and as an app (Android, and the desktop): see "The app" below.
+`vlichen-gui` serves the page on 127.0.0.1 only and opens your browser at
 it. The URL carries a token made fresh at each launch, and every call to
 the wallet must carry it, so other pages in your browser can't drive the
 wallet.
 
-Two tabs:
-
-- **Hub & contracts.** The hub's URLs and network, the hub's terms (its
-  liquidity fee and the rest), a contract opened with a live quote, the
-  deposit address to pay (with a QR code), your contracts and their
-  withdrawals, and deposits whose opening didn't finish (resume or
-  refund).
-- **Payments.** Your balance, how much more you can receive, your L2
-  address (with a QR code), sending, your notes, and what you've done.
-
-A local project: it builds against lichen's crates by path and
-isn't part of lichen.
+Four tabs: **Home** (your balance, your contracts and opening one, and
+your activity), **Send**, **Receive** (your L2 address, with a QR code)
+and **Settings** (the network, the sequencer and the hub, its terms, your
+Bitcoin, backup).
 
 ## Build
 
 You need git and Rust ([rustup](https://rustup.rs); `rust-toolchain.toml`
-picks the version). Then:
+picks the version). This directory is its own Cargo workspace, on the
+wallet's crates in `../crates` and lichen's by git, at the commit vlichen
+pins:
 
 ```sh
-git clone https://github.com/lichenbtc-org/lichen-gui
-cd lichen-gui
-./build.sh                 # target/release/lichen-gui and lichen-devstack
+git clone https://github.com/lichenbtc-org/vlichen
+cd vlichen/gui
+cargo build --release      # target/release/vlichen-gui and vlichen-devstack
 ```
 
-It builds against lichen's crates by path, so `build.sh` clones
-[lichen](https://github.com/lichenbtc-org/lichen) beside this directory
-(`../lichen`) at the tag in `LICHEN_TAG`, and
-[ln-gap](https://github.com/AdamISZ/ln-gap) (`../ln-gap`) at the commit
-in lichen's `LNGAP_REV`. A checkout already there is left as it is: at
-another revision, or with changes to its files, the script stops and
-says what to do (`LICHEN_GUI_DEV=1` builds against it anyway).
-
-| lichen-gui | lichen |
-|---|---|
-| v0.1.0 | v0.4.1 |
-| v0.1.1 | v0.4.2 |
-| v0.2.0 | v0.4.3 |
-| v0.2.1 | v0.4.5 |
-| v0.2.2 | v0.4.5 |
-
 A hub tells wallets which guests it proves with, and the GUI refuses one
-whose guests aren't its own build's: use the lichen version the hub runs
-(its terms panel shows it).
+whose guests aren't its own build's: build from the vlichen commit the hub
+runs (Settings shows the hub's version).
 
 ## Use
 
 ```sh
-target/release/lichen-gui
+target/release/vlichen-gui
 ```
 
-On the first tab, choose the network, give the hub's two URLs (the
+In Settings, choose the network, give the deployment's two URLs (the
 sequencer's, port 18300, and the hub's, 18310) and connect. The first
 time, the GUI shows the deployment's keys: check them against the ones the
 hub's operator publishes, then confirm. It makes a wallet pinned to that
@@ -77,25 +55,28 @@ other wallet is needed. A contract with nothing left to withdraw can be
 closed early (your reserve back), and one past its end whose default the
 hub hasn't posted, you can post yourself.
 
-Its data is in `~/Library/Application Support/lichen-gui` (Mac) or
-`~/.local/share/lichen-gui` (Linux), or `--dir`. There's one wallet file per
-network and sequencer key in `wallets/`; each holds secrets, so keep the
-directory private and back it up.
+Its data is in `~/Library/Application Support/vlichen-gui` (Mac) or
+`~/.local/share/vlichen-gui` (Linux), or `--dir`. There's one wallet file
+per network and sequencer key in `wallets/`; each holds secrets, so keep
+the directory private and back it up. It listens on 127.0.0.1:18340
+(`--listen` for another port, e.g. beside glichen-gui).
 
 ## The app (Android, and the desktop)
 
 The same page and wallet as an app, with Tauri (`app/`): the page in a
 webview, the wallet's API a command rather than HTTP. Its wallets and
-settings live in the app's own data directory.
+settings live in the app's own data directory, by its identifier
+(`io.github.adamisz.lichen`, kept from the app's earlier name so that
+updates keep its wallets).
 
 - **Android** (arm64, sideloaded): `app/build-android.sh` builds
-  `target/lichen-<version>-arm64.apk`. It needs JDK 17, the Android SDK
+  `target/vlichen-<version>-arm64.apk`. It needs JDK 17, the Android SDK
   (platform 35+, build-tools, an NDK), the Tauri CLI
   (`cargo install tauri-cli`) and Rust's `aarch64-linux-android` target.
   Install with `adb install -r`, or copy the file to the phone and open
   it (allow installs from that app).
 - **Desktop:** `cargo tauri build --bundles app` in `app/` (the Mac's
-  `target/release/bundle/macos/lichen.app`), or `cargo tauri dev`.
+  `target/release/bundle/macos/vlichen.app`), or `cargo tauri dev`.
 
 **The signing key** is `~/.android/debug.keystore` on the Mac that built
 the first APK (made by `build-android.sh`, password `android`): an update
@@ -103,11 +84,10 @@ installs over the app, keeping its wallet, only if signed with the same
 key. Back it up. Signed with another, an update needs the app
 uninstalled first, which deletes its wallet (unless backed up, below).
 
-**The networks.** Settings offers the test deployments on lichen-hub,
-behind TLS at `https://thimbly.org/lichen/<network>/{hub,sequencer}`
-(Caddy on thimbly.org's relay): Mutinynet, whose keys the app knows (its
-wallet is made without asking you to check them, and refused if they
-differ), and signet. Or another hub by its URLs, whose keys you check.
+**The networks.** Settings offers the deployments built into the app
+(`presets()` in `src/app.rs`), whose keys it knows: its wallet is made
+without asking you to check them, and refused if they differ. Or another
+deployment by its URLs, whose keys you check.
 
 **Opening a contract** shows its steps: pay the deposit (its QR code and
 address; seen, confirmed), garbling (78 instances: 40 s on a 4-core
@@ -128,14 +108,14 @@ picker; restored as the wallet for its deployment if the device has none
 
 ## Developing: the devstack
 
-`lichen-devstack` runs a whole deployment locally in one process: a
-regtest bitcoind (`bitcoind` on the PATH, or `LNGAP_BITCOIND`), the
+`vlichen-devstack` runs a whole deployment locally in one process: a
+regtest bitcoind (`bitcoind` on the PATH, or `LICHEN_BITCOIND`), the
 sequencer, a hub on BABE's mock statement (no proving), a block every 3
 seconds, and a faucet. Each run starts fresh, as a new deployment.
 
 ```sh
-target/release/lichen-devstack --dir /tmp/devstack       # Ctrl-C stops it
-target/release/lichen-gui --devstack /tmp/devstack/devstack.json
+target/release/vlichen-devstack --dir /tmp/devstack       # Ctrl-C stops it
+target/release/vlichen-gui --devstack /tmp/devstack/devstack.json
 ```
 
 Opening a contract then offers "Pay it from the devstack's faucet".
