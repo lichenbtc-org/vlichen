@@ -583,8 +583,9 @@ impl HubL2 for Rollup {
             Err(r) => return Ok(ProverInput::Fails(format!("the ground ({why}) doesn't check natively: {r:?}"))),
         }
         // the chain receipt the guest takes, beside the input (the prover
-        // reads it there)
-        if let Ground::At { last, .. } = &input.ground {
+        // reads it there): RISC Zero's statement only, the mock needs none
+        let real = matches!(ctx.cfg().statement.hp_kind()?, lichen_babe::statement::Kind::Risc0(_));
+        if let (true, Ground::At { last, .. }) = (real, &input.ground) {
             let h = last.state.chain_height;
             let Some(r) = self.seq.chain_receipt(h)? else { return Ok(ProverInput::NotYet(format!("the claim is false ({why}); waiting for the chain receipt at height {h} to prove it"))) };
             let dir = ctx.hp_dir(cid);

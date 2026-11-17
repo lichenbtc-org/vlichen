@@ -32,13 +32,13 @@ vlichen-sequencer = { path = "crates/sequencer" }
 vlichen-proto = { path = "crates/proto" }
 vlichen-hub = { path = "crates/hub" }
 vlichen-wallet = { path = "crates/wallet" }
-# lichen, the base (by path while local; by git at publication)
-lichen-contract = { path = "../lichen-base/crates/contract" }
-lichen-chain = { path = "../lichen-base/crates/chain" }
-lichen-proto = { path = "../lichen-base/crates/proto" }
-lichen-babe = { path = "../lichen-base/crates/babe" }
-lichen-hub = { path = "../lichen-base/crates/hub" }
-lichen-wallet = { path = "../lichen-base/crates/wallet" }
+# lichen, the base (lichenbtc-org/lichen, its L2-free branch `base`)
+lichen-contract = { git = "https://github.com/lichenbtc-org/lichen", rev = "e6532ca6435ca6ea4701ed4faac92a7011ec44bf" }
+lichen-chain = { git = "https://github.com/lichenbtc-org/lichen", rev = "e6532ca6435ca6ea4701ed4faac92a7011ec44bf" }
+lichen-proto = { git = "https://github.com/lichenbtc-org/lichen", rev = "e6532ca6435ca6ea4701ed4faac92a7011ec44bf" }
+lichen-babe = { git = "https://github.com/lichenbtc-org/lichen", rev = "e6532ca6435ca6ea4701ed4faac92a7011ec44bf" }
+lichen-hub = { git = "https://github.com/lichenbtc-org/lichen", rev = "e6532ca6435ca6ea4701ed4faac92a7011ec44bf" }
+lichen-wallet = { git = "https://github.com/lichenbtc-org/lichen", rev = "e6532ca6435ca6ea4701ed4faac92a7011ec44bf" }
 # the Bitcoin layer (lichenbtc-org/lichen-btc), as lichen pins it
 lichen-btc = { git = "https://github.com/lichenbtc-org/lichen-btc", rev = "d7d2de04f7f8d51b44f61a68c7e1789f36502071" }
 lichen-wots = { git = "https://github.com/lichenbtc-org/lichen-btc", rev = "d7d2de04f7f8d51b44f61a68c7e1789f36502071" }
