@@ -88,7 +88,7 @@ run, shows where the time goes:
 
 | block | time (UTC) | what |
 |---|---|---|
-| 3,580,107 | 02:41:24 | `lichen withdraw 1006 60000`: 76 units, 59,356 sats |
+| 3,580,107 | 02:41:24 | `vlichen withdraw 1006 60000`: 76 units, 59,356 sats |
 | 3,580,109 | 02:42:05 | her wallet splits off a note of 59,356, a payment to herself, locked until acknowledged |
 | 3,580,147 | 03:01:32 | the split's anchor recorded the margin deep; she acknowledges it; the claim goes to the hub, which records it and broadcasts the [fold](https://mutinynet.com/tx/d68901667a851f47306dc5de22c40eaf799113522d494a3db437e7a6f52b03f8) 123 ms later |
 
@@ -211,7 +211,7 @@ With a deployment as in [RUN_A_HUB.md](../RUN_A_HUB.md), and the wallet
 built natively ([USE_A_WALLET.md](../USE_A_WALLET.md)):
 
 ```sh
-L="./target/release/lichen --network mutinynet --statement hub-proves --sequencer http://<host>:18300 --hub http://<host>:18310"
+L="./target/release/vlichen --network mutinynet --statement hub-proves --sequencer http://<host>:18300 --hub http://<host>:18310"
 $L --wallet alice.json init
 $L --wallet alice.json open 100000 --liquidity 100000
 #   it prints "pay 151000 sats to tb1p…": pay that from any wallet

@@ -1232,7 +1232,7 @@ fn policy(tx: &Tx, pending: usize) -> Result<()> {
     Ok(())
 }
 
-/// The spend guest's image id (`r0/guests/spend.id`, `lichen-r0 image-id`).
+/// The spend guest's image id (`r0/guests/spend.id`, `vlichen-r0 image-id`).
 pub const SPEND_IMAGE_ID: &str = include_str!("../../../r0/guests/spend.id");
 
 /// Check a RISC Zero receipt (bincode) of the spend guest with `journal`.
@@ -1522,7 +1522,7 @@ mod tests {
     fn seal_checked(l: &mut Ledger, seq: &SigningKey, from: (Hash, Hash)) -> vlichen_validity::BlockJournal {
         let input = l.block_input().unwrap();
         // LICHEN_DUMP_BLOCKS=<dir>: each block's input written, for
-        // `lichen-r0 exec-chain` on the guest
+        // `vlichen-r0 exec-chain` on the guest
         if let Ok(d) = std::env::var("LICHEN_DUMP_BLOCKS") {
             std::fs::write(std::path::Path::new(&d).join(format!("block-{}.bin", input.height + 1)), input.to_bytes()).unwrap();
         }

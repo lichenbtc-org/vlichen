@@ -61,7 +61,7 @@ leaves:
   spends it this way.
 - **`deposit_refund`:** Alice alone, after the timeout. If the hub
   disappears, or the opening fails part-way, she takes her deposit back
-  (`lichen refund`).
+  (`vlichen refund`).
 
 So the lichen wallet holds no bitcoin of Alice's: she pays the address
 from anywhere, an exchange or a faucet.
@@ -240,7 +240,7 @@ cheated by going first:
 If the hub never broadcasts, Alice refunds her deposit after the timeout,
 and the locked note stays where it is: tokens no one can spend, which
 cost the hub nothing to print. If its answer is lost, her wallet reads
-`t` from the funding on chain (`lichen claim-mint`). The hub broadcasts
+`t` from the funding on chain (`vlichen claim-mint`). The hub broadcasts
 only in the first half of the deposit's timeout, so that the funding
 confirms long before Alice could refund the deposit with `t` in hand.
 

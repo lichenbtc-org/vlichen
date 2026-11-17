@@ -172,7 +172,7 @@ proving and wrapping.
 ### Cleo: a valid proof, challenged anyway
 
 Cleo opened contract 1001, prepared her claim of her 99,000-sat note
-(`lichen exit --claim-only`, which keeps it unposted), then paid the
+(`vlichen exit --claim-only`, which keeps it unposted), then paid the
 whole note to Bob and acknowledged the payment. Once its anchor was
 past the margin, she posted the old claim anyway, set to challenge
 whatever the hub asserted (`--challenge-anyway`, a trial switch).

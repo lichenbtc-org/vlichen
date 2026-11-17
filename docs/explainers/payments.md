@@ -19,8 +19,8 @@ chain of its own transactions, each committing to a hash of the roots up
 to a height.
 
 ```sh
-lichen send <Alice's address> 10000
-lichen ack --wait
+vlichen send <Alice's address> 10000
+vlichen ack --wait
 ```
 
 ## Why a spend needs the sender's word
@@ -100,7 +100,7 @@ Bob in the same run, sent at 02:20:02, was acknowledged at block
 6 blocks and anchors every few blocks, that is about one to two hours.
 
 Alice's wallet shows the note as soon as the payment is sealed, but as
-locked until Bob acknowledges: `lichen balance` counts locked notes,
+locked until Bob acknowledges: `vlichen balance` counts locked notes,
 and a spend or a claim takes only unlocked ones.
 
 ## Who is protected, and how

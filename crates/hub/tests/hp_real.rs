@@ -119,7 +119,7 @@ fn heights(blocks: &std::path::Path) -> (u64, u64) {
 
 /// Opt-in, the timing run on the real circuit: a stale claim proved false
 /// at `A*`, the chain receipt there composed. Needs LICHEN_HP_PROVER as
-/// above, and LICHEN_R0 naming lichen-r0 for the chain prover
+/// above, and LICHEN_R0 naming vlichen-r0 for the chain prover
 /// (r0/chain-prover.sh, run here on every height the sequencer records:
 /// natively on a Mac, `cargo build --release` in r0).
 ///
@@ -134,7 +134,7 @@ fn heights(blocks: &std::path::Path) -> (u64, u64) {
 #[ignore]
 fn a_stale_claim_proved_false_for_real() {
     assert!(std::env::var("LICHEN_HP_PROVER").is_ok(), "set LICHEN_HP_PROVER (r0/hp-prover.sh, or r0/hp-remote.sh)");
-    let r0 = std::env::var("LICHEN_R0").expect("set LICHEN_R0: lichen-r0 for the chain prover");
+    let r0 = std::env::var("LICHEN_R0").expect("set LICHEN_R0: vlichen-r0 for the chain prover");
     let statement = Statement::parse("hub-proves", lichen_babe::statement::image_id(vlichen_proto::HP_IMAGE_ID)).unwrap();
     let mut env = Env::new("hp-real-stale");
     env.anchor();
@@ -227,7 +227,7 @@ fn a_stale_claim_proved_false_for_real() {
     for l in &said {
         println!("LICHEN hub: {l}");
     }
-    for l in std::fs::read_to_string(hp_dir.join(cid.to_string()).join("prover.log")).unwrap_or_default().lines().filter(|l| l.contains("lichen-r0")) {
+    for l in std::fs::read_to_string(hp_dir.join(cid.to_string()).join("prover.log")).unwrap_or_default().lines().filter(|l| l.contains("vlichen-r0")) {
         println!("LICHEN hub's prover: {l}");
     }
     for l in std::fs::read_to_string(&chain_log).unwrap().lines().filter(|l| l.contains("proved height")) {

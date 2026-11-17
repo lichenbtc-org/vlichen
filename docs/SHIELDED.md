@@ -133,9 +133,9 @@ treating a payment as received. Signing two histories can't go unseen,
 though, by anyone who looks: your wallet keeps every root it checks and
 stops, writing the evidence beside itself, if it's ever shown a
 different root at a height it has seen; the hub does the same before
-folding. To compare with others, `lichen roots` prints yours and
-`lichen compare-roots <file or sequencer URL>` checks theirs against
-them; `lichen check-equivocation <file>` checks evidence, which anyone
+folding. To compare with others, `vlichen roots` prints yours and
+`vlichen compare-roots <file or sequencer URL>` checks theirs against
+them; `vlichen check-equivocation <file>` checks evidence, which anyone
 with the sequencer's key can do. The chain proof guards the hub, and
 through its collateral everyone, against notes nobody paid for. An
 honest sequencer checks every spend before accepting it, so its blocks
@@ -165,7 +165,7 @@ checkpoint's difficulty). Every spend counts only once its sender
 acknowledges it against an anchor the margin deep
 ([payments](explainers/payments.md)).
 
-`lichen balance` shows how final what you hold is: firm (anchored the
+`vlichen balance` shows how final what you hold is: firm (anchored the
 margin deep, and acknowledged by its sender), anchored, sealed only, or
 locked, waiting for its sender's acknowledgment. The wallet doesn't take the
 sequencer's word for the anchors: it checks each on Bitcoin, from the

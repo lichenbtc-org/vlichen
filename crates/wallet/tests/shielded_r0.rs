@@ -1,11 +1,11 @@
 //! Opt-in (`--ignored`; the prover image, `docker build -f r0/Dockerfile -t
-//! lichen-r0 .` (or another tag, named by LICHEN_R0_IMAGE), or
+//! vlichen-r0 .` (or another tag, named by LICHEN_R0_IMAGE), or
 //! LICHEN_SPEND_PROVER naming another prover command; a
 //! regtest bitcoind): shielding, a payment and an unshielding with real
 //! RISC Zero receipts, to a sequencer that accepts no native proofs and
 //! anchors its history on regtest (agent notes: docs/ANCHOR_PLAN.md); then
 //! every height it recorded proved by the chain prover (r0/chain-prover.sh,
-//! in the same image, or LICHEN_R0 naming lichen-r0), the last receipt
+//! in the same image, or LICHEN_R0 naming vlichen-r0), the last receipt
 //! ending at the last sealed root and carrying the last anchor.
 //! LICHEN_KEEP=1 keeps the files.
 
@@ -76,7 +76,7 @@ fn shield_pay_and_unshield_with_receipts() {
     let last = std::fs::read(blocks.join(format!("{}.chain", sealed.height))).unwrap();
     let out = match std::env::var("LICHEN_R0") {
         Ok(cmd) => std::process::Command::new(cmd).arg("verify-chain").arg("-").stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::piped()).spawn(),
-        Err(_) => std::process::Command::new("docker").args(["run", "--rm", "-i", &std::env::var("LICHEN_R0_IMAGE").unwrap_or("lichen-r0".into()), "verify-chain", "-"]).stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::piped()).spawn(),
+        Err(_) => std::process::Command::new("docker").args(["run", "--rm", "-i", &std::env::var("LICHEN_R0_IMAGE").unwrap_or("vlichen-r0".into()), "verify-chain", "-"]).stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::piped()).spawn(),
     }
     .unwrap();
     use std::io::Write;

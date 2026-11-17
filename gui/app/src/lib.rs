@@ -1,4 +1,4 @@
-//! The lichen wallet as an app: lichen-gui's page in a webview, its API a
+//! The vlichen wallet as an app: vlichen-gui's page in a webview, its API a
 //! command rather than HTTP on 127.0.0.1. Its wallets and settings in the
 //! app's data directory.
 
@@ -9,7 +9,7 @@ use tauri::Manager;
 
 struct Wallet(Arc<App>);
 
-/// The page's API call: what lichen-gui serves at `url` (`/api/...`, with
+/// The page's API call: what vlichen-gui serves at `url` (`/api/...`, with
 /// its query), its response's body; an error's text.
 #[tauri::command]
 async fn api(state: tauri::State<'_, Wallet>, method: String, url: String, body: Option<String>) -> Result<String, String> {

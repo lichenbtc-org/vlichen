@@ -83,7 +83,7 @@ enum Cmd {
     /// show both to everyone without being caught.
     Roots,
     /// Compare signed roots from elsewhere with this wallet's: another
-    /// wallet's `lichen roots`, or a sequencer's URL (a mirror's, or the
+    /// wallet's `vlichen roots`, or a sequencer's URL (a mirror's, or the
     /// sequencer's seen from another network). Prints how many heights
     /// agree, or the two conflicting roots, written as evidence.
     CompareRoots { from: String },
@@ -105,7 +105,7 @@ enum Cmd {
         reserve: u64,
         /// Where withdrawals, refunds and the fee budget's rest are paid
         /// (an address of any wallet of yours; by default this wallet's
-        /// own payout address, `lichen payout`).
+        /// own payout address, `vlichen payout`).
         #[arg(long)]
         payout: Option<String>,
         /// Finish the opening of this contract with its deposit, already
@@ -223,7 +223,7 @@ fn exit_note(a: &Args, cid: u32, t_close: u32, height: Option<u32>) -> String {
     )
 }
 
-/// `lichen exit`: a contract's exit, played to its end.
+/// `vlichen exit`: a contract's exit, played to its end.
 fn exit_cmd(a: &Args, w: &mut Wallet, contract: u32, claim_only: bool, challenge_anyway: bool) -> Result<()> {
     let chain = chain(a)?;
     w.progress = Some(std::sync::Arc::new(|m: String| println!("{m}")));

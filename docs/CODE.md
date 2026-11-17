@@ -31,7 +31,7 @@ L2 before it folds (`POST /withdraw/nonce`, the hub's MuSig2 nonce, then
 | `babe` | | hub and wallet: BABE's cryptography (the garbled circuit, the witness encryption, the cut-and-choose setup over VSSS, the reveal by adaptor signatures), the swapped graph and its scripts (`hp`), its statement (the mock; a RISC Zero receipt's Groth16 form) |
 | `sequencer` | `vlichen-sequencer` | the L2's sequencer: orders transactions, seals and signs heights, records blocks for the chain prover, anchors its history on Bitcoin (`anchor`); serves how a nullifier was spent and its proof at a past height, and holds on claimed notes |
 | `l2` | | wallet and hub: the sequencer's API and its client; the HTTP agents every client uses (`http`: `quick`, timeouts on connect and each read; `slow`, for a call the server works on before answering; neither reuses a connection) |
-| `wallet` | `lichen` | the user: `lichen withdraw`, a claim the hub records and folds, and `lichen exit`, a claim the hub must prove false (`hp`: the opening's garbling and upload, the claims; `exit`: the notes kept as the wallet reads the sequencer) |
+| `wallet` | `vlichen` | the user: `vlichen withdraw`, a claim the hub records and folds, and `vlichen exit`, a claim the hub must prove false (`hp`: the opening's garbling and upload, the claims; `exit`: the notes kept as the wallet reads the sequencer) |
 | `chain` | | each party: its own bitcoind wallet over RPC, or Esplora |
 | `proto` | | wallet and hub: the opening messages, the contract record, the contract's graph (`Built`); the hub-proves setup exchange and dispute plumbing (`hp`, the cut-and-choose's shared parts in `setup`); `request` and transactions read from the chain for the hub's statement (`exit`) |
 | `hub` | `lichen-hub` | the hub: opens contracts, issues tokens, records withdrawal claims and folds; proves exit claims false, and records the others on the L2 |
@@ -68,7 +68,7 @@ runs everything that needs nothing outside the tree but bitcoind
 
 | test | needs | time |
 |---|---|---|
-| `lichen-wallet --test shielded_r0` | the prover image | 10 minutes: real spend and chain receipts (`LICHEN_KEEP=1` to keep the files) |
+| `vlichen-wallet --test shielded_r0` | the prover image | 10 minutes: real spend and chain receipts (`LICHEN_KEEP=1` to keep the files) |
 | `lichen-hub --test hp_real` | `LICHEN_HP_PROVER` (`r0/hp-prover.sh`, or `r0/hp-remote.sh` from a Mac), and `LICHEN_R0` for the stale-claim case's chain prover | the hub's statement proved and wrapped for real: a malformed claim, 7 minutes; a stale claim, 20 to 25 minutes on a Mac and a 4-vCPU x86 server |
 
 ## Comments citing agent notes

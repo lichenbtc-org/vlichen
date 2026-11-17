@@ -14,7 +14,7 @@ In lichen the hub also runs the L2 itself: one operator, one deployment
 | `hub` | the contracts, folds and exits; it checks a withdrawal's claim against the ledger before it folds, and proves its statement against a false exit claim |
 | `miner` | regtest only: a block every few seconds |
 
-Users run only the `lichen` wallet, with no node:
+Users run only the `vlichen` wallet, with no node:
 [USE_A_WALLET.md](USE_A_WALLET.md).
 
 ## A machine
@@ -43,7 +43,7 @@ deploy/build.sh
 
 - **`lichen`:** the hub, the sequencer, the chain prover (`vlichen-r0`,
   which also proves the hub's statement, through `lichen-hp-prover`), and
-  the `lichen` wallet, for the smoke test.
+  the `vlichen` wallet, for the smoke test.
 - **`lichen-bitcoind:<network>`:** the node.
   - For regtest, signet and testnet4: stock Bitcoin Core 31.1.
   - For Mutinynet: benthecarman's patched build, the one Mutinynet's
@@ -165,7 +165,7 @@ must not fall far behind: a small height takes under a minute on a
 laptop's CPU, and a couple of seconds on a GPU.
 
 **Exits.** A user whose withdrawal the hub won't fold, or whose
-operator has gone, exits (`lichen exit`; [the
+operator has gone, exits (`vlichen exit`; [the
 explainer](explainers/exit.md)): she claims her notes, and the hub must
 prove the claim false within `w_H` (two hours on Mutinynet), or her
 timeout pays her. The hub decides natively, from the L2's state and the

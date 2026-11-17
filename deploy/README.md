@@ -3,7 +3,7 @@
 One deployment per network, run by the hub's operator: the node, the
 L2's sequencer, its chain prover and the hub, in one Docker Compose
 project ([docs/RUN_A_HUB.md](../docs/RUN_A_HUB.md)). Users run only the
-`lichen` wallet, with no node ([docs/USE_A_WALLET.md](../docs/USE_A_WALLET.md)).
+`vlichen` wallet, with no node ([docs/USE_A_WALLET.md](../docs/USE_A_WALLET.md)).
 
 ## Layout
 

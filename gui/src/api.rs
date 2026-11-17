@@ -1,5 +1,5 @@
 //! The wallet's API, as the page calls it: served over HTTP on the
-//! desktop (`lichen-gui`), and through a Tauri command in the app.
+//! desktop (`vlichen-gui`), and through a Tauri command in the app.
 
 use std::sync::Arc;
 

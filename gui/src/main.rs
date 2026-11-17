@@ -1,4 +1,4 @@
-//! `lichen-gui`: a lichen wallet as a page in your browser, served on
+//! `vlichen-gui`: a vlichen wallet as a page in your browser, served on
 //! 127.0.0.1 only. Each launch has a token of its own in the URL it opens,
 //! which every call to the API must carry: other pages in the browser
 //! can't drive the wallet.
@@ -16,7 +16,7 @@ use tiny_http::{Header, Request, Response, Server};
 
 
 #[derive(Parser)]
-#[command(about = "A lichen wallet in your browser")]
+#[command(about = "The vlichen wallet in your browser")]
 struct Args {
     /// Where the GUI keeps its wallets and settings.
     #[arg(long)]

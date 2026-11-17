@@ -1,6 +1,6 @@
-# Using a lichen wallet
+# Using a vlichen wallet
 
-A user runs only `lichen`, the wallet: no node, no coins in it. It reads
+A user runs only `vlichen`, the wallet: no node, no coins in it. It reads
 Bitcoin from a public Esplora server, holds keys, and talks to the
 hub's two services: the L2's sequencer and the hub. Deposits are paid
 into it from any Bitcoin wallet, and withdrawals paid out to an address
@@ -10,8 +10,8 @@ of any wallet. Running the hub is [RUN_A_HUB.md](RUN_A_HUB.md).
 
 - **The wallet.** Build it from source, with Rust:
   ```sh
-  git clone https://github.com/lichenbtc-org/lichen
-  cd lichen && cargo build --release -p lichen-wallet     # target/release/lichen
+  git clone https://github.com/lichenbtc-org/vlichen
+  cd vlichen && cargo build --release -p vlichen-wallet     # target/release/vlichen
   ```
 - **The hub's two URLs**, the sequencer's (port 18300) and the hub's
   (18310), and the sequencer's key, from the hub's operator.
@@ -26,7 +26,7 @@ Every command takes the network, the wallet file and the two URLs. A
 shell alias saves repeating them:
 
 ```sh
-alias lw='target/release/lichen --network mutinynet --wallet alice.json \
+alias vw='target/release/vlichen --network mutinynet --wallet alice.json \
   --sequencer http://<host>:18300 --hub http://<host>:18310 --statement hub-proves \
   --spend-prover r0/target/release/vlichen-r0'
 ```
@@ -38,8 +38,8 @@ wallet file holds secrets: keep it, and the directory beside it
 ## A contract
 
 ```sh
-lw init                                  # a fresh key; pins the deployment the sequencer announces
-lw open 100000 --liquidity 200000
+vw init                                  # a fresh key; pins the deployment the sequencer announces
+vw open 100000 --liquidity 200000
 ```
 
 `init` pins the deployment: check the sequencer's key it prints against
@@ -58,7 +58,7 @@ then prints a deposit address and an amount, `D` plus your reserve, a
 share of the funding fee and a fee budget for an exit's fees, and waits. Pay
 it from any wallet or faucet; if you don't like the quote, don't pay.
 The deposit address is the hub's key and yours together, or yours alone
-after about a day: if the contract never opens, `lw refund <contract>`
+after about a day: if the contract never opens, `vw refund <contract>`
 takes it back.
 
 Once it's paid and confirmed, the wallet garbles the circuits that would
@@ -70,21 +70,21 @@ your deposit, less the fee, is minted to you on the L2. Moving it to
 your key is your first spend: acknowledge it (below).
 
 Withdrawals, refunds, your reserve and the fee budget's rest are paid to
-the contract's payout address: by default the wallet's own (`lw payout`
-prints it and what's there, and `lw send-payout <address> [<amount>]`
+the contract's payout address: by default the wallet's own (`vw payout`
+prints it and what's there, and `vw send-payout <address> [<amount>]`
 pays from it), or any address of yours with `--payout`.
 
-`lw contracts` lists your contracts: each one's cap, its end `T_close`,
+`vw contracts` lists your contracts: each one's cap, its end `T_close`,
 and its payout address.
 
 ## On the L2
 
 ```sh
-lw balance                    # transparent and shielded notes
-lw address                    # your transparent address; --shielded for the shielded one
-lw send <address> <amount>    # to a transparent address (64 hex) or a shielded one (128 hex)
-lw shield <amount>            # move transparent notes into a shielded one
-lw ack [--wait]               # acknowledge your spends (--wait: until all are)
+vw balance                    # transparent and shielded notes
+vw address                    # your transparent address; --shielded for the shielded one
+vw send <address> <amount>    # to a transparent address (64 hex) or a shielded one (128 hex)
+vw shield <amount>            # move transparent notes into a shielded one
+vw ack [--wait]               # acknowledge your spends (--wait: until all are)
 ```
 
 Payments to a transparent address need no proof. A shielded one is
@@ -98,8 +98,8 @@ outputs, your change and your payee's note, stay locked. Your wallet
 acknowledges against an anchor on Bitcoin at or above the spend, once
 the sequencer has recorded it, the margin deep (20 blocks on Mutinynet,
 about 5 to 10 minutes; 6 on mainnet), and once it holds the data to
-check it. So stay online after paying, or run `lw ack --wait` when you
-return. `lw balance` counts locked notes; a payment or a claim takes only
+check it. So stay online after paying, or run `vw ack --wait` when you
+return. `vw balance` counts locked notes; a payment or a claim takes only
 unlocked ones. A payment you receive is firm once its sender's
 acknowledgment is sequenced.
 
@@ -109,7 +109,7 @@ on the hub, not collateralised by your contract.
 ## Withdrawing
 
 ```sh
-lw withdraw <contract> <amount>
+vw withdraw <contract> <amount>
 ```
 
 claims notes of yours worth exactly that amount (in the contract's
@@ -118,11 +118,11 @@ fold. The hub checks the claim against its ledger, records it on the L2,
 which retires the notes, and pays you `amount` plus your reserve in one
 transaction, closing the contract ([a cooperative
 withdrawal](explainers/cooperative.md)). A split is a payment to
-yourself, so it waits for its acknowledgment. `lw sweep-fees <contract>`
+yourself, so it waits for its acknowledgment. `vw sweep-fees <contract>`
 then sends what is left of the contract's fee budget to the payout
 address.
 
-`lw withdraw <contract> 0` closes a contract early with nothing
+`vw withdraw <contract> 0` closes a contract early with nothing
 withdrawn: no claim and no wait, just your reserve back, as the default
 would pay it at the end. It's for a contract you've emptied (say, your
 whole balance withdrawn from another), and frees the hub's liquidity
@@ -130,7 +130,7 @@ too.
 
 Withdraw before `T_close`: at the end, an unwithdrawn contract is the
 hub's. Its default then pays you your reserve; the hub posts it, and if
-it doesn't, `lw post-default <contract>` does, with a fee coin from the
+it doesn't, `vw post-default <contract>` does, with a fee coin from the
 contract's fee budget.
 
 ## If the hub won't pay
@@ -139,7 +139,7 @@ If the hub refuses the fold, or doesn't answer, or the operator has
 gone, exit on Bitcoin:
 
 ```sh
-lw exit <contract>
+vw exit <contract>
 ```
 
 It posts the same claim a withdrawal makes, on Bitcoin ([the
@@ -151,21 +151,21 @@ or claimed elsewhere), and it concedes; a false one it challenges, and
 the hub, unable to answer, loses. The wallet claims your notes in the
 last anchor at least the margin deep (it waits for that once your notes
 are anchored), and keeps your notes as it reads the sequencer, so an
-exit needs neither the hub nor the sequencer: if both have vanished, `lw
+exit needs neither the hub nor the sequencer: if both have vanished, `vw
 exit` claims from the notes kept. A withdrawal the hub recorded but
-didn't fold is exited with its own claim. When `lw withdraw` fails, it
-names the next step; `lw withdraw <contract> <amount> --escalate` takes
+didn't fold is exited with its own claim. When `vw withdraw` fails, it
+names the next step; `vw withdraw <contract> <amount> --escalate` takes
 it at once.
 
-Exit before `T_close`, less the windows: `lw contracts` says by when. A
+Exit before `T_close`, less the windows: `vw contracts` says by when. A
 challenge is yours to make, within a day of the hub's assertion on
 Mutinynet; no tower can make it for you, since it reveals your secrets.
 
 ## Checking the operator
 
 ```sh
-lw roots > roots.json              # every signed root your wallet has checked
-lw compare-roots <file or URL>     # another wallet's, or the sequencer seen from elsewhere
+vw roots > roots.json              # every signed root your wallet has checked
+vw compare-roots <file or URL>     # another wallet's, or the sequencer seen from elsewhere
 ```
 
 A sequencer that signs two histories can't show both to everyone
