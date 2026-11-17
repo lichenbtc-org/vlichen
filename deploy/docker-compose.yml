@@ -1,9 +1,9 @@
-# A lichen deployment for NETWORK (deploy/.env): the node, the L2's
+# A vlichen deployment for NETWORK (deploy/.env): the node, the L2's
 # sequencer (anchoring its history through the node), its chain prover,
 # and the hub; on regtest a miner too (COMPOSE_PROFILES=regtest).
 #   deploy/build.sh && deploy/lichen.sh up
 # Data: deploy/state/<network>/.
-name: lichen-${NETWORK:?set NETWORK in deploy/.env}
+name: vlichen-${NETWORK:?set NETWORK in deploy/.env}
 
 # Each service's log rotated, 10 MB a file and three kept: the node logs
 # every block, and Docker keeps a container's output whole otherwise
@@ -42,7 +42,7 @@ services:
 
   sequencer:
     logging: *logging
-    image: ${LICHEN_IMAGE:-lichen:latest}
+    image: ${LICHEN_IMAGE:-vlichen:latest}
     command: ["sequencer"]
     environment:
       NETWORK: ${NETWORK}
@@ -67,7 +67,7 @@ services:
 
   chain-prover:
     logging: *logging
-    image: ${LICHEN_IMAGE:-lichen:latest}
+    image: ${LICHEN_IMAGE:-vlichen:latest}
     command: ["chain-prover"]
     environment:
       NETWORK: ${NETWORK}
@@ -77,7 +77,7 @@ services:
 
   hub:
     logging: *logging
-    image: ${LICHEN_IMAGE:-lichen:latest}
+    image: ${LICHEN_IMAGE:-vlichen:latest}
     command: ["hub"]
     environment:
       NETWORK: ${NETWORK}

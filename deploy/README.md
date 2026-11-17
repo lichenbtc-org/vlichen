@@ -11,7 +11,7 @@ project ([docs/RUN_A_HUB.md](../docs/RUN_A_HUB.md)). Users run only the
 |---|---|
 | `.env.example` | the settings; copy to `.env` |
 | `docker-compose.yml` | the deployment: `bitcoind`, `sequencer`, `chain-prover`, `hub`, and on regtest `miner` |
-| `Dockerfile`, `entry.sh` | the `lichen` image (the hub, the sequencer, `vlichen-r0`, the wallet) and its roles: `key`, `sequencer`, `chain-prover`, `hub` |
+| `Dockerfile`, `entry.sh` | the `vlichen` image (the hub, the sequencer, `vlichen-r0`, the wallet) and its roles: `key`, `sequencer`, `chain-prover`, `hub` |
 | `bitcoind/` | the node's image (`lichen-bitcoind:<network>`) and its `bitcoin.conf` per network |
 | `build.sh` | builds both images |
 | `context.sh` | a build context of committed sources (lichen's HEAD), for `build.sh` |

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "lichen",
+  "productName": "vlichen",
   "version": "0.4.0",
   "identifier": "io.github.adamisz.lichen",
   "build": {
@@ -9,7 +9,7 @@
   "app": {
     "withGlobalTauri": true,
     "windows": [
-      { "title": "lichen wallet", "width": 1000, "height": 820 }
+      { "title": "vlichen wallet", "width": 1000, "height": 820 }
     ],
     "security": { "csp": null }
   },

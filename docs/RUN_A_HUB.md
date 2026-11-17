@@ -41,7 +41,7 @@ deploy/build.sh
 `build.sh` builds two images, from committed sources only: lichen's HEAD
 (and lichen-btc at the commit `Cargo.lock` pins).
 
-- **`lichen`:** the hub, the sequencer, the chain prover (`vlichen-r0`,
+- **`vlichen`:** the hub, the sequencer, the chain prover (`vlichen-r0`,
   which also proves the hub's statement, through `lichen-hp-prover`), and
   the `vlichen` wallet, for the smoke test.
 - **`lichen-bitcoind:<network>`:** the node.
