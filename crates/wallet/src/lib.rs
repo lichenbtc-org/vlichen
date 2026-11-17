@@ -50,6 +50,12 @@ pub use ack::ACK_PATIENCE;
 /// A vlichen wallet.
 pub type RollupWallet = Wallet<Rollup>;
 
+/// A hub's `GET /info` checked for this wallet (a vlichen hub of our
+/// version: the same guests): its deployment.
+pub fn check_hub(info: &Info) -> Result<Deployment> {
+    Ok(Rollup::create(info)?.deployment)
+}
+
 /// The rollup in the wallet file: the sequencer and its deployment (pinned
 /// when the wallet was made), the roots seen signed, our spends signed,
 /// the exit sets kept, the anchors checked against the chain.

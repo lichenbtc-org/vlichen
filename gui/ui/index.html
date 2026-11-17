@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>lichen wallet</title>
+<style>
+:root {
+  --bg: #f4f5f1; --card: #ffffff; --ink: #1d2320; --muted: #66706a; --line: #e1e5de;
+  --accent: #2f6f4f; --accent-ink: #ffffff; --accent-soft: #e7f3ec;
+  --warn: #8a5300; --warn-bg: #fff4e0; --bad: #a3261b; --bad-bg: #fdecea; --good: #2f6f4f; --good-bg: #e7f3ec;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121614; --card: #1b201d; --ink: #e4e8e3; --muted: #97a29b; --line: #2c332f;
+    --accent: #5fb38a; --accent-ink: #0d120f; --accent-soft: #17301f;
+    --warn: #f0b45a; --warn-bg: #33270f; --bad: #f28b80; --bad-bg: #3a1c19; --good: #7fd0a8; --good-bg: #17301f;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 76px; }
+.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--card); border-bottom: 1px solid var(--line); }
+.top h1 { font-size: 19px; margin: 0; letter-spacing: .02em; }
+.pill { font-size: 12px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.pill.ok { color: var(--good); background: var(--good-bg); border-color: transparent; }
+.pill.bad { color: var(--bad); background: var(--bad-bg); border-color: transparent; }
+.spacer { flex: 1; }
+main { max-width: 560px; margin: 0 auto; padding: 14px 14px 20px; display: grid; gap: 14px; }
+.view { display: grid; gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; overflow-wrap: anywhere; }
+.card h2 { font-size: 16px; margin: 0 0 10px; }
+.card h3 { font-size: 15px; margin: 0 0 6px; }
+label { display: block; font-size: 14px; color: var(--muted); margin: 12px 0 5px; }
+input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; }
+input.mono, textarea.mono { font-family: var(--mono); font-size: 14px; }
+button { font: inherit; cursor: pointer; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 18px; border-radius: 11px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.sec { background: transparent; color: var(--accent); }
+.btn.small { padding: 7px 12px; font-size: 14px; font-weight: 500; border-radius: 9px; }
+.btn.wide { width: 100%; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row input { flex: 1; min-width: 110px; width: auto; }
+.mt { margin-top: 12px; }
+.balance { font-size: 40px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.balance small { font-size: 18px; font-weight: 500; color: var(--muted); }
+.sub { font-size: 14px; color: var(--muted); }
+.note { font-size: 13px; color: var(--muted); }
+.mono { font-family: var(--mono); font-size: 13px; word-break: break-all; }
+.msg { padding: 10px 12px; border-radius: 10px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.bad { background: var(--bad-bg); color: var(--bad); }
+.msg.warn { background: var(--warn-bg); color: var(--warn); }
+.msg.good { background: var(--good-bg); color: var(--good); }
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; font-size: 14px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.qr { display: block; width: 230px; height: 230px; margin: 4px auto 10px; background: #fff; border-radius: 10px; padding: 8px; }
+.copyline { display: flex; gap: 8px; align-items: flex-start; }
+.copyline .mono { flex: 1; padding-top: 6px; }
+/* the opening's steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 8px 0; }
+.dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 1px; }
+.step.done .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.step.now .dot { border-color: var(--accent); color: var(--accent); }
+.step.failed .dot { border-color: var(--bad); color: var(--bad); }
+.step .title { font-weight: 600; }
+.step:not(.done):not(.now):not(.failed) .title { color: var(--muted); font-weight: 500; }
+.step .detail { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 7px; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .4s; }
+.spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--accent); border-right-color: transparent; border-radius: 50%; animation: s 1s linear infinite; }
+@keyframes s { to { transform: rotate(360deg); } }
+/* contracts and lists */
+.item { padding: 12px 0; border-top: 1px solid var(--line); }
+.item:first-of-type { border-top: none; padding-top: 2px; }
+.item .head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.tag { font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--good); white-space: nowrap; }
+.tag.warn { background: var(--warn-bg); color: var(--warn); }
+.tag.muted { background: var(--line); color: var(--muted); }
+details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+.choice { display: grid; gap: 10px; }
+.choice label { margin: 0; display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); cursor: pointer; }
+.choice label.on { border-color: var(--accent); background: var(--accent-soft); }
+.choice input { width: auto; margin: 3px 0 0; }
+.choice b { display: block; }
+/* the bottom bar */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--card); border-top: 1px solid var(--line); }
+.tabs button { background: none; border: none; padding: 10px 4px 12px; color: var(--muted); font-size: 13px; display: grid; justify-items: center; gap: 3px; }
+.tabs button svg { width: 22px; height: 22px; }
+.tabs button.on { color: var(--accent); font-weight: 600; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>lichen</h1>
+  <span id="net" class="pill">not connected</span>
+  <span class="spacer"></span>
+  <span id="conn" class="pill">—</span>
+</header>
+
+<main>
+  <div id="notoken" class="msg bad hidden">This page needs the URL vlichen-gui printed when it started (it carries this launch's token).</div>
+
+  <!-- ===================== Home ===================== -->
+  <div id="v-home" class="view">
+    <section id="welcome" class="card hidden">
+      <h2>Welcome</h2>
+      <p class="sub">Choose a test network in Settings to make your wallet.</p>
+      <button class="btn wide" data-go="settings">Choose a network</button>
+    </section>
+
+    <section id="balcard" class="card hidden">
+      <div class="sub">Balance</div>
+      <div id="bal" class="balance">—</div>
+      <div id="balsub" class="sub mt"></div>
+      <div id="unacked" class="msg warn mt hidden"></div>
+      <div id="unbacked" class="msg warn mt hidden"></div>
+      <div class="btns mt">
+        <button class="btn" data-go="send">Send</button>
+        <button class="btn sec" data-go="receive">Receive</button>
+      </div>
+    </section>
+
+    <!-- the running (or last) operation -->
+    <section id="job" class="card hidden">
+      <div class="head row" style="justify-content: space-between">
+        <h2 id="jobname" style="margin:0"></h2>
+        <button id="jobclose" class="btn small sec hidden">Dismiss</button>
+      </div>
+      <div id="jobbody" class="mt"></div>
+    </section>
+
+    <section id="contractscard" class="card hidden">
+      <h2>Your contracts</h2>
+      <div id="contracts"></div>
+      <button class="btn small sec mt" data-go="open">Open another contract</button>
+    </section>
+
+    <section id="opencta" class="card hidden">
+      <h2>Back your balance with a contract</h2>
+      <p class="sub" style="margin-top:0">A contract with the hub lets you withdraw to Bitcoin whatever the hub does, up to its cap. You pay in a deposit; it's minted to you here.</p>
+      <button class="btn wide" data-go="open">Open a contract</button>
+    </section>
+
+    <section id="depositscard" class="card hidden">
+      <h2>Openings not finished</h2>
+      <div id="deposits"></div>
+    </section>
+
+    <section id="activitycard" class="card hidden">
+      <details>
+        <summary>Activity</summary>
+        <div id="history" class="mt"></div>
+      </details>
+    </section>
+  </div>
+
+  <!-- ===================== Send ===================== -->
+  <div id="v-send" class="view hidden">
+    <section class="card">
+      <h2>Send</h2>
+      <label for="s-to">To: the receiver's lichen address (64 characters)</label>
+      <textarea id="s-to" class="mono" rows="2" autocomplete="off" spellcheck="false" placeholder="paste it"></textarea>
+      <label for="s-amt">Amount (sats)</label>
+      <input id="s-amt" type="number" inputmode="numeric" min="1" step="1" autocomplete="off">
+      <div id="s-avail" class="note mt"></div>
+      <button id="sendbtn" class="btn wide mt">Send</button>
+      <div id="sendmsg" class="msg mt hidden"></div>
+      <p class="note mt">The receiver sees it within seconds. It becomes final once the next anchor on Bitcoin is deep enough (about 20 minutes on Mutinynet): keep this app open until then, it confirms the payment by itself.</p>
+    </section>
+  </div>
+
+  <!-- ===================== Receive ===================== -->
+  <div id="v-receive" class="view hidden">
+    <section class="card">
+      <h2>Receive</h2>
+      <img id="addrqr" class="qr" alt="QR code of your lichen address">
+      <div class="copyline"><span id="addr" class="mono"></span><button class="btn small sec" data-copy="addr">Copy</button></div>
+      <p class="note mt">Your address on this hub's L2. Payments arrive within seconds. <span id="recvcap"></span></p>
+    </section>
+  </div>
+
+  <!-- ===================== Open a contract ===================== -->
+  <div id="v-open" class="view hidden">
+    <section class="card">
+      <h2>Open a contract</h2>
+      <label for="o-deposit">Deposit (sats): what you put in, minted to you here less the fee</label>
+      <input id="o-deposit" type="number" inputmode="numeric" min="0" step="1000" value="50000">
+      <label for="o-liq">Inbound liquidity (sats): what you can receive beyond it</label>
+      <input id="o-liq" type="number" inputmode="numeric" min="0" step="1000" value="50000">
+      <details class="mt">
+        <summary>Where your money comes back to, and your reserve</summary>
+        <label for="o-payout">Payout address (on Bitcoin): withdrawals, refunds and your reserve. By default this wallet's own.</label>
+        <input id="o-payout" class="mono" autocomplete="off" spellcheck="false">
+        <button id="o-payout-own" class="btn small sec mt hidden">Use this wallet's own address</button>
+        <label for="o-reserve">Your reserve (sats): returned to you unless you lose a dispute</label>
+        <input id="o-reserve" type="number" inputmode="numeric" min="0" step="1000" value="20000">
+      </details>
+      <div id="quote" class="mt"></div>
+      <button id="openbtn" class="btn wide mt">Open the contract</button>
+      <button class="btn sec wide mt" data-go="home">Cancel</button>
+    </section>
+  </div>
+
+  <!-- ===================== Settings ===================== -->
+  <div id="v-settings" class="view hidden">
+    <section class="card">
+      <h2>Network</h2>
+      <div id="presets" class="choice"></div>
+      <div id="custom" class="hidden">
+        <label for="c-network">network</label>
+        <select id="c-network">
+          <option value="mutinynet">Mutinynet</option>
+          <option value="signet">signet</option>
+          <option value="testnet4">testnet4</option>
+          <option value="regtest">regtest</option>
+        </select>
+        <label for="c-hub">hub URL</label>
+        <input id="c-hub" class="mono" placeholder="https://host/hub" autocomplete="off" spellcheck="false">
+        <label for="c-sequencer">sequencer URL</label>
+        <input id="c-sequencer" class="mono" placeholder="https://host/sequencer" autocomplete="off" spellcheck="false">
+      </div>
+      <details class="mt">
+        <summary>Chain source</summary>
+        <label for="c-esplora">Esplora servers, comma-separated (empty: the network's public one)</label>
+        <input id="c-esplora" class="mono">
+        <label for="c-rpc">or a node's RPC URL (a local regtest)</label>
+        <input id="c-rpc" class="mono">
+        <label for="c-cookie">its cookie file</label>
+        <input id="c-cookie" class="mono">
+        <label for="c-faucet">devstack faucet URL</label>
+        <input id="c-faucet" class="mono">
+      </details>
+      <button id="connect" class="btn wide mt">Connect</button>
+      <div id="connmsg" class="msg mt hidden"></div>
+    </section>
+
+    <section id="pin" class="card hidden">
+      <h2>Check this deployment's keys</h2>
+      <p class="sub" style="margin-top:0">This app doesn't know this deployment. Check its keys against the ones its operator publishes: your wallet is made for it, and pinned to it.</p>
+      <dl class="kv">
+        <dt>sequencer</dt><dd id="pin-seq" class="mono"></dd>
+        <dt>hub</dt><dd id="pin-hub" class="mono"></dd>
+        <dt>anchored</dt><dd id="pin-anch"></dd>
+      </dl>
+      <button id="pinbtn" class="btn wide mt">The keys match: make my wallet</button>
+    </section>
+
+    <section id="termscard" class="card hidden">
+      <h2>The hub's terms</h2>
+      <div id="terms"></div>
+    </section>
+
+    <section id="payoutcard" class="card hidden">
+      <h2>Your Bitcoin</h2>
+      <p class="sub" style="margin-top:0">This wallet's own address on Bitcoin, where withdrawals, refunds and your reserve arrive by default.</p>
+      <dl class="kv"><dt>balance</dt><dd id="pobal">—</dd></dl>
+      <div class="copyline mt"><span id="poaddr" class="mono"></span><button class="btn small sec" data-copy="poaddr">Copy</button></div>
+      <details class="mt">
+        <summary>Send from it</summary>
+        <label for="po-to">to (a Bitcoin address)</label>
+        <input id="po-to" class="mono" autocomplete="off" spellcheck="false">
+        <label for="po-amt">amount (sats; empty: everything, less the fee)</label>
+        <input id="po-amt" type="number" inputmode="numeric" min="330" step="1000" autocomplete="off">
+        <button id="posend" class="btn wide mt">Send</button>
+        <div id="pomsg" class="msg mt hidden"></div>
+      </details>
+    </section>
+
+    <section id="backupcard" class="card">
+      <h2>Backup</h2>
+      <p class="sub" style="margin-top:0">Your wallet lives only on this device: its key, and your contracts' records. Save a copy somewhere else (it holds the key: keep it private). Uninstalling the app deletes the wallet; an update keeps it.</p>
+      <div class="btns">
+        <button id="backupbtn" class="btn sec">Save a backup</button>
+        <button id="restorebtn" class="btn sec">Restore one</button>
+      </div>
+      <input id="restorefile" type="file" accept=".json,application/json" class="hidden">
+      <div id="backupmsg" class="msg mt hidden"></div>
+    </section>
+
+    <section id="aboutcard" class="card hidden">
+      <h2>This wallet</h2>
+      <dl class="kv" id="about"></dl>
+    </section>
+  </div>
+</main>
+
+<nav class="tabs">
+  <button data-go="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-go="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Send</button>
+  <button data-go="receive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Receive</button>
+  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
+</nav>
+
+<script>
+const token = new URLSearchParams(location.search).get('t');
+const $ = id => document.getElementById(id);
+const sats = n => (n ?? 0).toLocaleString('en-US');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const short = t => t ? `${t.slice(0, 10)}…${t.slice(-6)}` : '';
+const MB = b => (b / 1048576).toFixed(b < 10485760 ? 1 : 0);
+const BLOCK_SECS = { mutinynet: 30, signet: 600, testnet4: 600, regtest: 0 };
+let S = null, PRESETS = [], filled = false, walletErr = null, view = 'home', dismissed = 0;
+
+// In the app (Tauri), the API is a command; on the desktop, HTTP to
+// vlichen-gui with this launch's token.
+const TAURI = window.__TAURI__?.core;
+async function call(method, path, body) {
+  const b = body === undefined ? undefined : JSON.stringify(body);
+  if (TAURI) {
+    try { return await TAURI.invoke('api', { method, url: path, body: b ?? null }); }
+    catch (e) { throw new Error(typeof e === 'string' ? e : (e?.message || String(e))); }
+  }
+  const r = await fetch(path, { method, headers: { 'X-Lichen-Token': token, 'Content-Type': 'application/json' }, body: b });
+  const t = await r.text();
+  if (!r.ok) { let m; try { m = JSON.parse(t).error; } catch {} throw new Error(m || r.statusText); }
+  return t;
+}
+async function api(method, path, body) { return JSON.parse(await call(method, path, body)); }
+function show(el, on) { (typeof el === 'string' ? $(el) : el).classList.toggle('hidden', !on); }
+function msg(el, text, kind) { el = $(el); el.className = 'msg mt ' + (kind || ''); el.textContent = text; show(el, !!text); }
+async function copyText(t, b) {
+  try { await navigator.clipboard.writeText(t); }
+  catch { const a = document.createElement('textarea'); a.value = t; document.body.append(a); a.select(); document.execCommand('copy'); a.remove(); }
+  if (b) { const was = b.textContent; b.textContent = 'Copied'; setTimeout(() => b.textContent = was, 1500); }
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-copy]'); if (c) copyText($(c.dataset.copy).textContent, c);
+  const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go);
+});
+function qr(img, data) { const src = '/api/qr?d=' + encodeURIComponent(data); if (img.dataset.d !== data) { img.dataset.d = data; call('GET', src).then(svg => img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg)); } }
+function setHTML(id, html) {
+  const el = $(id);
+  if (el.dataset.html === html) return false;
+  const vals = {}, focus = document.activeElement?.id;
+  el.querySelectorAll('input[data-typed]').forEach(i => vals[i.id] = i.value);
+  el.innerHTML = html; el.dataset.html = html;
+  el.querySelectorAll('input').forEach(i => { if (vals[i.id] !== undefined) { i.value = vals[i.id]; i.dataset.typed = 1; } });
+  if (focus && el.querySelector('#' + focus)) $(focus).focus();
+  return true;
+}
+document.addEventListener('input', e => { if (e.target.tagName === 'INPUT') e.target.dataset.typed = 1; });
+function about(blocks, net) {
+  const s = BLOCK_SECS[net];
+  if (!s || blocks == null) return '';
+  const secs = blocks * s;
+  if (secs < 3600) return `${Math.max(1, Math.round(secs / 60))} min`;
+  if (secs < 172800) return `${(secs / 3600).toFixed(1)} h`;
+  return `${(secs / 86400).toFixed(1)} days`;
+}
+// the open contracts that back the balance: not closed, not ended
+function backing(snap) { return snap.contracts.filter(c => !c.closed && !c.defaulted && c.returned == null && (snap.height == null || snap.height < c.t_close)); }
+function unbackedNow() {
+  if (!S?.wallet) return 0;
+  const snap = S.snap, bal = snap.transparent + snap.shielded;
+  return Math.max(0, bal - backing(snap).reduce((a, c) => a + c.cap, 0));
+}
+
+// ---- views ----
+function go(v) {
+  view = v;
+  ['home', 'send', 'receive', 'open', 'settings'].forEach(x => show('v-' + x, x === v));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.go === v || (v === 'open' && b.dataset.go === 'home')));
+  window.scrollTo(0, 0);
+  if (v === 'open') quote();
+  if (S) render();
+}
+
+// ---- settings: presets, or a hub of one's own ----
+let chosen = null;
+function renderPresets() {
+  const conn = S?.saved.conn;
+  if (chosen == null) chosen = PRESETS.find(p => conn && p.hub === conn.hub)?.id ?? (conn?.hub ? 'custom' : PRESETS[0]?.id ?? 'custom');
+  setHTML('presets', PRESETS.map(p => `<label class="${chosen === p.id ? 'on' : ''}"><input type="radio" name="preset" value="${p.id}" ${chosen === p.id ? 'checked' : ''}><span><b>${esc(p.name)}</b><span class="note">${esc(p.about)}</span></span></label>`).join('')
+    + `<label class="${chosen === 'custom' ? 'on' : ''}"><input type="radio" name="preset" value="custom" ${chosen === 'custom' ? 'checked' : ''}><span><b>Another hub</b><span class="note">its URLs, from its operator</span></span></label>`);
+  document.querySelectorAll('input[name=preset]').forEach(r => r.onchange = () => { chosen = r.value; renderPresets(); render(); });
+  show('custom', chosen === 'custom');
+}
+function connForm() {
+  const extra = { esplora: $('c-esplora').value.trim(), rpc_url: $('c-rpc').value.trim(), cookie: $('c-cookie').value.trim(), faucet: $('c-faucet').value.trim() };
+  const p = PRESETS.find(x => x.id === chosen);
+  if (p) return { network: p.network, hub: p.hub, sequencer: p.sequencer, ...extra };
+  return { network: $('c-network').value, hub: $('c-hub').value.trim(), sequencer: $('c-sequencer').value.trim(), ...extra };
+}
+['c-network', 'c-hub', 'c-sequencer', 'c-esplora', 'c-rpc', 'c-cookie', 'c-faucet'].forEach(id => $(id).addEventListener('input', () => { if (S) render(); }));
+$('c-network').onchange = () => ['c-esplora', 'c-rpc', 'c-cookie', 'c-faucet'].forEach(id => $(id).value = '');
+$('connect').onclick = async () => {
+  const conn = connForm(), p = PRESETS.find(x => x.id === chosen);
+  msg('connmsg', 'connecting …');
+  $('connect').disabled = true;
+  try {
+    const r = await api('POST', '/api/connect', { ...conn, keys: p?.keys ?? null });
+    msg('connmsg', r.pin ? 'Connected: check the keys below.' : 'Connected: your wallet is ready.', 'good');
+    if (!r.pin) setTimeout(() => go('home'), 600);
+  } catch (e) { msg('connmsg', e.message, 'bad'); }
+  $('connect').disabled = false;
+  refresh();
+};
+$('pinbtn').onclick = async () => {
+  try { await api('POST', '/api/pin'); msg('connmsg', 'Your wallet for this deployment is made.', 'good'); setTimeout(() => go('home'), 600); }
+  catch (e) { msg('connmsg', e.message, 'bad'); }
+  refresh();
+};
+
+// ---- opening ----
+let quoteTimer = null;
+function ask() { return { deposit: +$('o-deposit').value || 0, liquidity: +$('o-liq').value || 0, reserve: +$('o-reserve').value || 0 }; }
+async function quote() {
+  if (!S?.wallet) return;
+  const a = ask();
+  try {
+    const q = await api('GET', `/api/quote?deposit=${a.deposit}&liquidity=${a.liquidity}&reserve=${a.reserve}`);
+    const owed = unbackedNow(), info = S.snap.info, net = S.saved.conn.network;
+    $('quote').innerHTML = `<dl class="kv">
+      <dt>you pay in</dt><dd><b>${sats(q.pay)} sats</b></dd>
+      <dt>minted to you</dt><dd>${sats(q.minted)} sats</dd>
+      <dt>you can receive</dt><dd>${sats(Math.max(0, q.inbound - owed))} sats more${owed ? ', backed' : ''}</dd>
+      <dt>liquidity fee</dt><dd>${sats(q.fee)} sats</dd>
+      <dt>lasts</dt><dd>${info ? about(info.duration, net) || sats(info.duration) + ' blocks' : '—'}</dd></dl>
+      <p class="note">What you pay in is your deposit, your reserve (${sats(q.reserve)}), and ${sats(q.extra)} for the funding's fee and a budget for a dispute's fees: the reserve, and what the budget doesn't spend, come back to you when the contract ends.</p>`;
+    $('openbtn').disabled = false;
+  } catch (e) { $('quote').innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; $('openbtn').disabled = true; }
+}
+['o-deposit', 'o-liq', 'o-reserve'].forEach(id => $(id).oninput = () => { clearTimeout(quoteTimer); quoteTimer = setTimeout(quote, 250); });
+$('o-payout-own').onclick = () => { if (S?.snap.payout_address) { $('o-payout').value = S.snap.payout_address; render(); } };
+$('openbtn').onclick = async () => { if (await act('/api/open', { ...ask(), payout: $('o-payout').value.trim() }, $('openbtn'))) go('home'); };
+
+// ---- payments ----
+$('sendbtn').onclick = async () => {
+  const b = $('sendbtn'); b.disabled = true; msg('sendmsg', '');
+  try {
+    await api('POST', '/api/send', { to: $('s-to').value.trim(), amount: +$('s-amt').value });
+    msg('sendmsg', `Sending ${sats(+$('s-amt').value)} sats …`, 'good'); $('s-amt').value = '';
+    setTimeout(() => go('home'), 900);
+  } catch (e) { msg('sendmsg', e.message, 'bad'); }
+  b.disabled = false; refresh();
+};
+$('posend').onclick = async () => {
+  const b = $('posend'), amt = $('po-amt').value.trim();
+  b.disabled = true;
+  try { const r = await api('POST', '/api/send-payout', { to: $('po-to').value.trim(), amount: amt ? +amt : null }); msg('pomsg', `sent: ${r.txid}`, 'good'); $('po-to').value = ''; $('po-amt').value = ''; }
+  catch (e) { msg('pomsg', e.message, 'bad'); }
+  finally { b.disabled = false; refresh(); }
+};
+
+// ---- backup ----
+const TAURI_API = window.__TAURI__;
+$('backupbtn').onclick = async () => {
+  try {
+    const b = await api('GET', '/api/backup');
+    if (TAURI_API?.dialog && TAURI_API?.fs) {
+      const path = await TAURI_API.dialog.save({ defaultPath: b.name });
+      if (!path) return;
+      await TAURI_API.fs.writeTextFile(path, b.content);
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([b.content], { type: 'application/json' })); a.download = b.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+    msg('backupmsg', `Saved: ${b.name}`, 'good');
+  } catch (e) { msg('backupmsg', String(e?.message || e), 'bad'); }
+};
+async function restoreFrom(content) {
+  try {
+    const r = await api('POST', '/api/restore', { content });
+    msg('backupmsg', r.in_use ? 'Restored, and reopened: it is the wallet in use.' : `Restored the wallet for ${r.network} (sequencer ${r.sequencer.slice(0, 16)}…): connect to that network to use it.`, 'good');
+    refresh();
+  } catch (e) { msg('backupmsg', String(e?.message || e), 'bad'); }
+}
+$('restorebtn').onclick = async () => {
+  if (TAURI_API?.dialog && TAURI_API?.fs) {
+    try {
+      const path = await TAURI_API.dialog.open({ multiple: false, directory: false });
+      if (!path) return;
+      await restoreFrom(await TAURI_API.fs.readTextFile(path));
+    } catch (e) { msg('backupmsg', String(e?.message || e), 'bad'); }
+  } else $('restorefile').click();
+};
+$('restorefile').onchange = async () => { const f = $('restorefile').files[0]; if (f) await restoreFrom(await f.text()); $('restorefile').value = ''; };
+
+// an operation from a button: whether it started (its progress shows on Home)
+async function act(path, body, btn) {
+  const was = btn?.disabled;
+  if (btn) btn.disabled = true;
+  let ok = false;
+  try { await api('POST', path, body); ok = true; dismissed = 0; } catch (e) { failed(e); }
+  finally { if (btn) btn.disabled = was; }
+  refresh();
+  return ok;
+}
+let refused = null;
+function failed(e) { refused = e.message; go('home'); }
+$('jobclose').onclick = () => { dismissed = S?.job.started || 1; refused = null; render(); };
+
+// ---- the operation card ----
+function stepHTML(state, n, title, detail, bar) {
+  const mark = state === 'done' ? '✓' : state === 'failed' ? '!' : state === 'now' ? '<span class="spin"></span>' : n;
+  return `<li class="step ${state}"><div class="dot">${mark}</div><div><div class="title">${title}</div>${detail ? `<div class="detail">${detail}</div>` : ''}${bar != null ? `<div class="bar"><i style="width:${Math.round(bar * 100)}%"></i></div>` : ''}</div></li>`;
+}
+function openingHTML(j, snap) {
+  const o = j.opening || {}, pay = o.pay || j.pay;
+  // which step it's at: the first not done
+  const done = [o.confirmed, o.instances > 0 && o.garbled >= o.instances, o.upload > 0 && o.sent >= o.upload, o.minted, !!o.funding, o.open != null];
+  let at = done.indexOf(false); if (at < 0) at = done.length;
+  const st = i => done[i] ? 'done' : i === at ? (j.running ? 'now' : (j.error ? 'failed' : '')) : '';
+  let h = '<ol class="steps">';
+  // 1: the deposit
+  let d1 = '';
+  if (pay && !o.confirmed) {
+    const btc = (pay.sats / 1e8).toFixed(8);
+    d1 = o.deposit_txid ? `Seen on the network (${short(o.deposit_txid)}): waiting for it to confirm.`
+      : `Pay exactly <b>${sats(pay.sats)} sats</b> to this address, from any wallet or faucet.`;
+    if (!o.deposit_txid && j.running) {
+      d1 += `<img id="payqr" class="qr" alt="QR code of the deposit address" data-pay="bitcoin:${esc(pay.address)}?amount=${btc}">
+        <div class="copyline"><span id="payaddr" class="mono">${esc(pay.address)}</span><button class="btn small sec" data-copy="payaddr">Copy</button></div>
+        <div class="copyline mt"><span id="payamt" class="mono">${btc}</span><button class="btn small sec" data-copy="payamt">Copy BTC</button></div>`;
+      if (snap.payout_balance != null && snap.payout_balance >= pay.sats + 1000) d1 += `<button id="payfrombtn" class="btn small mt">Pay it from your Bitcoin (${sats(snap.payout_balance)} sats there)</button>`;
+      if (S.saved.conn.faucet && S.saved.conn.network === 'regtest') d1 += ` <button id="faucetbtn" class="btn small sec mt">Pay it from the devstack's faucet</button>`;
+    }
+  } else if (o.deposit_txid) d1 = `Confirmed: ${short(o.deposit_txid)}`;
+  h += stepHTML(st(0), 1, 'Pay the deposit', d1);
+  // 2: garbling
+  const g = o.instances ? `${o.garbled} of ${o.instances}` : '';
+  h += stepHTML(st(1), 2, 'Prepare the dispute setup', at === 1 || done[1] ? `Garbling the hub's statement: ${g}` : 'Your phone garbles the circuits a dispute would use', at === 1 && o.instances ? o.garbled / o.instances : null);
+  // 3: upload
+  const u = o.upload ? `${MB(o.sent)} of ${MB(o.upload)} MB${o.rate && at === 2 ? ` · ${(o.rate / 1048576).toFixed(1)} MB/s` : ''}` : '';
+  h += stepHTML(st(2), 3, 'Upload to the hub', u || 'The circuits the hub keeps, about 230 MB: Wi-Fi is best', at === 2 && o.upload ? o.sent / o.upload : null);
+  // 4: the hub
+  h += stepHTML(st(3), 4, 'The hub checks and signs', at === 3 ? 'It checks the circuits you opened to it, and mints your deposit' : '');
+  // 5: funding
+  h += stepHTML(st(4), 5, 'The contract is funded on Bitcoin', o.funding ? short(o.funding) : '');
+  // 6: open
+  h += stepHTML(st(5), 6, 'Open', o.open != null ? `Contract ${o.open}: your deposit is in your balance` : '');
+  h += '</ol>';
+  if (j.error) h += `<div class="msg bad mt">${esc(j.error)}</div>`;
+  if (!j.running && j.error && !o.open) h += `<p class="note mt">Your deposit is kept: resume the opening below, or take it back after its timeout.</p>`;
+  return h;
+}
+function renderJob(snap) {
+  const j = S.job;
+  const isOpening = !!(j.opening || j.pay) || /^(open a contract|resume contract)/.test(j.name || '');
+  const visible = !!refused || (!!j.name && (j.running || dismissed !== j.started));
+  show('job', visible);
+  if (!visible) return;
+  if (refused) { $('jobname').textContent = 'Not started'; setHTML('jobbody', `<div class="msg bad">${esc(refused)}</div>`); show('jobclose', true); return; }
+  $('jobname').innerHTML = esc(isOpening ? (j.running ? 'Opening a contract' : j.error ? 'The opening stopped' : 'Contract opened') : j.name);
+  show('jobclose', !j.running);
+  let body;
+  if (isOpening) body = openingHTML(j, snap);
+  else {
+    const last = j.log.length ? j.log[j.log.length - 1] : '';
+    body = j.running ? `<div class="row"><span class="spin"></span><span class="sub">${esc(last || 'working …')}</span></div>` : '';
+    if (j.error) body += `<div class="msg bad">${esc(j.error)}</div>`; else if (j.result) body += `<div class="msg good">${esc(j.result)}</div>`;
+    if (j.log.length) body += `<details class="mt"><summary>Details</summary><div class="mono mt" style="white-space:pre-wrap">${esc(j.log.slice(-20).join('\n'))}</div></details>`;
+  }
+  setHTML('jobbody', body);
+  const img = document.querySelector('#jobbody img[data-pay]'); if (img) qr(img, img.dataset.pay);
+  if ($('payfrombtn')) $('payfrombtn').onclick = async () => { $('payfrombtn').disabled = true; try { await api('POST', '/api/pay-deposit', {}); } catch (e) { failed(e); } refresh(); };
+  if ($('faucetbtn')) $('faucetbtn').onclick = async () => { const p = (j.opening || {}).pay || j.pay; try { await api('POST', '/api/faucet', { address: p.address, sats: p.sats }); } catch (e) { failed(e); } };
+}
+
+// ---- render ----
+function render() {
+  const s = S, snap = s.snap, conn = s.saved.conn, info = snap.info, net = conn.network;
+  if (!filled) {
+    filled = true;
+    $('c-network').value = net; $('c-hub').value = conn.hub; $('c-sequencer').value = conn.sequencer; $('c-esplora').value = conn.esplora;
+    $('c-rpc').value = conn.rpc_url; $('c-cookie').value = conn.cookie; $('c-faucet').value = conn.faucet; $('o-payout').value = s.saved.payout;
+    if (s.launch && !s.launch.ok) msg('connmsg', s.launch.text, 'bad');
+    if (!conn.hub || s.pin) go('settings');
+  }
+  renderPresets();
+  // header
+  const preset = PRESETS.find(p => p.hub === conn.hub);
+  $('net').textContent = conn.hub ? (preset ? preset.name : net) : 'not connected';
+  const stale = !!s.wallet && snap.refreshed > 0 && Date.now() / 1000 - snap.refreshed > 30;
+  const up = s.wallet && !snap.hub_error && !stale;
+  $('conn').textContent = !conn.hub ? 'set up' : snap.hub_error ? 'hub unreachable' : s.wallet ? (stale ? 'not updating' : 'connected') : s.pin ? 'keys to check' : 'not connected';
+  $('conn').className = 'pill ' + (up ? 'ok' : conn.hub ? 'bad' : '');
+  // settings
+  const form = connForm();
+  const same = Object.keys(form).every(k => form[k] === (conn[k] ?? ''));
+  $('connect').disabled = s.job.running || (up && same);
+  $('connect').textContent = up && same ? 'Connected' : conn.hub && same ? 'Reconnect' : 'Connect';
+  show('pin', !!s.pin);
+  if (s.pin) { $('pin-seq').textContent = s.pin.sequencer; $('pin-hub').textContent = s.pin.hub; $('pin-anch').textContent = s.pin.anchored ? 'yes' : 'no'; }
+  show('termscard', !!info);
+  if (info) setHTML('terms', `<dl class="kv">
+      <dt>liquidity fee</dt><dd>${(info.fee_ppm / 10000).toFixed(2)}% of the liquidity you ask</dd>
+      <dt>most liquidity</dt><dd>${sats(info.max_liquidity)} sats</dd>
+      <dt>a contract lasts</dt><dd>${about(info.duration, net) || sats(info.duration) + ' blocks'}</dd>
+      <dt>disputes</dt><dd>${esc(info.statement)}</dd>
+      <dt>lichen</dt><dd>${esc(info.version || '?')} <span class="note mono">${esc(info.commit || '')}</span></dd></dl>`
+    + (snap.hub_error ? `<div class="msg bad mt">${esc(snap.hub_error)}</div>` : ''));
+  show('payoutcard', !!s.wallet && !!snap.payout_address);
+  if (snap.payout_address) { $('poaddr').textContent = snap.payout_address; $('pobal').textContent = snap.payout_balance != null ? `${sats(snap.payout_balance)} sats` : '—'; }
+  show('aboutcard', !!s.wallet);
+  $('backupbtn').disabled = !s.wallet;
+  if (s.wallet) {
+    const l2 = snap.sealed != null ? `${sats(snap.sealed)}${snap.anchored != null ? `, anchored to ${sats(snap.anchored)}` : ''}${snap.proved ? `, proved to ${sats(snap.proved)}` : ''}` : '—';
+    setHTML('about', `<dt>Bitcoin</dt><dd>block ${snap.height != null ? sats(snap.height) : '—'}</dd><dt>L2 height</dt><dd>${l2}</dd><dt>wallet file</dt><dd class="mono">${esc(s.wallet)}</dd>`);
+  }
+  if (snap.wallet_error) { msg('connmsg', snap.wallet_error, 'bad'); walletErr = snap.wallet_error; }
+  else if (walletErr != null) { if ($('connmsg').textContent === walletErr) msg('connmsg', ''); walletErr = null; }
+  // home
+  show('welcome', !s.wallet);
+  show('balcard', !!s.wallet);
+  const bal = snap.transparent + snap.shielded;
+  const loaded = snap.updated > 0;
+  $('bal').innerHTML = s.wallet && loaded ? `${sats(bal)} <small>sats</small>` : '<span class="spin"></span>';
+  const caps = backing(snap).reduce((a, c) => a + c.cap, 0), unbacked = unbackedNow();
+  $('balsub').textContent = !s.wallet || !loaded ? '' : caps ? `Backed by your contract${backing(snap).length > 1 ? 's' : ''}: ${sats(bal - unbacked)} · can receive ${sats(Math.max(0, caps - bal))} more` : 'No contract: what you hold is credit on the hub';
+  msg('unacked', snap.unacked ? `Confirming ${snap.unacked === 1 ? 'your latest transaction' : 'your latest ' + snap.unacked + ' transactions'} (a payment, or a new contract's deposit): keep the app open until the next anchor is deep enough, about 20 minutes on Mutinynet. Until then what it moved can't be spent onward.` : '', 'warn');
+  show('unbacked', !!s.wallet && loaded && unbacked > 0 && caps > 0);
+  if (unbacked > 0 && caps > 0) $('unbacked').textContent = `${sats(unbacked)} sats are beyond your contracts' caps: credit on the hub, not backed.`;
+  renderJob(snap);
+  // contracts
+  const live = snap.contracts.filter(c => !c.closed && !c.defaulted);
+  const ended = snap.contracts.filter(c => (c.closed || c.defaulted) && !(c.budget === 0));
+  const shown = [...live, ...ended];
+  show('contractscard', shown.length > 0);
+  setHTML('contracts', shown.map(c => {
+    const left = snap.height != null ? c.t_close - snap.height : null;
+    const over = left != null && left <= 0;
+    const tag = c.closed ? `<span class="tag muted">${c.disputing != null ? 'closed by a dispute' : 'closed'}</span>` : c.defaulted ? '<span class="tag muted">ended</span>' : c.disputing != null ? '<span class="tag warn">in dispute</span>' : over ? '<span class="tag warn">ended</span>' : !c.mint_claimed ? '<span class="tag warn">mint to claim</span>' : '<span class="tag">open</span>';
+    let h = `<div class="item"><div class="head"><b>Contract ${c.cid}</b>${tag}</div>`;
+    if (!c.closed && !c.defaulted) h += `<div class="sub">cap ${sats(c.cap)} sats · ${over ? 'ended' : `ends in ${about(left, net) || sats(left) + ' blocks'}`}</div>`;
+    let acts = '';
+    if (!c.closed && !c.defaulted && !over && c.disputing == null) {
+      const all = Math.min(bal, c.cap);
+      if (all > 0) acts += `<div class="row mt"><input id="w-${c.cid}" type="number" inputmode="numeric" min="0" value="${all}"><button class="btn small" data-w="${c.cid}">Withdraw</button></div><div class="note">to Bitcoin, up to the cap; 0 closes it with your reserve back</div>`;
+      else acts += `<button class="btn small sec mt" data-close="${c.cid}">Close (your reserve back)</button>`;
+    }
+    if (c.disputing != null && !c.closed) acts += `<button class="btn small mt" data-exit="${c.cid}">Exit on Bitcoin</button><div class="note">the hub didn't pay your withdrawal: your claim goes on chain, and the hub pays it unless it proves it false</div>`;
+    if (!c.closed && !c.defaulted && over) acts += `<button class="btn small sec mt" data-d="${c.cid}">Post the default (your reserve back)</button>`;
+    if (!c.mint_claimed) acts += `<button class="btn small sec mt" data-m="${c.cid}">Claim the mint</button>`;
+    if ((c.closed || c.defaulted) && c.disputing == null && c.budget !== 0) acts += `<button class="btn small sec mt" data-f="${c.cid}">Sweep the fee budget${c.budget ? ` (${sats(c.budget)} sats)` : ''}</button>`;
+    return h + acts + '</div>';
+  }).join(''));
+  document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => act('/api/withdraw', { cid: +b.dataset.w, amount: +$('w-' + b.dataset.w).value }, b));
+  document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => act('/api/withdraw', { cid: +b.dataset.close, amount: 0 }, b));
+  document.querySelectorAll('[data-exit]').forEach(b => b.onclick = () => act('/api/exit', { cid: +b.dataset.exit }, b));
+  document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => act('/api/post-default', { cid: +b.dataset.d }, b));
+  document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => act('/api/claim-mint', { cid: +b.dataset.m }, b));
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => act('/api/sweep', { cid: +b.dataset.f }, b));
+  show('opencta', !!s.wallet && loaded && live.length === 0 && !s.job.running);
+  // openings not finished (not the one running)
+  const j = s.job, runningPay = (j.opening || {}).pay || j.pay;
+  const deps = snap.deposits.filter(d => !(j.running && runningPay && runningPay.address === d.address));
+  show('depositscard', deps.length > 0);
+  setHTML('deposits', deps.map(d => `<div class="item"><div class="head"><b>Contract ${d.cid}</b><span class="tag warn">${d.offered ? 'offer accepted' : 'not open'}</span></div>
+    <div class="note mono">${esc(d.address)}</div>
+    <div class="row mt">${d.ask ? `<button class="btn small" data-r="${d.cid}">Resume the opening</button>` : '<span class="note">opened elsewhere</span>'}
+    <button class="btn small sec" data-x="${d.cid}">Refund</button></div>
+    <div class="note">a refund is possible ${sats(d.timeout)} blocks after the deposit confirms</div></div>`).join(''));
+  document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { const d = snap.deposits.find(x => x.cid === +b.dataset.r); act('/api/resume', { cid: d.cid, ask: d.ask }, b); });
+  document.querySelectorAll('[data-x]').forEach(b => b.onclick = () => act('/api/refund', { cid: +b.dataset.x }, b));
+  show('activitycard', s.history.length > 0);
+  setHTML('history', s.history.slice(0, 25).map(h => `<div class="item"><div class="head"><span>${esc(h.name)}</span><span class="note">${new Date(h.ended * 1000).toLocaleString()}</span></div><div class="note" style="${h.error ? 'color:var(--bad)' : ''}">${esc((h.error || h.result || '').split('\n')[0])}</div></div>`).join(''));
+  // send / receive
+  $('s-avail').textContent = s.wallet && loaded ? `You have ${sats(bal)} sats.` : '';
+  $('sendbtn').disabled = !s.wallet;
+  if (snap.address) { $('addr').textContent = snap.address; qr($('addrqr'), snap.address); }
+  $('recvcap').textContent = !s.wallet || !loaded ? '' : caps ? `Up to ${sats(Math.max(0, caps - bal))} sats more is backed by your contract; beyond that it's credit on the hub.` : `With no contract, what you receive is credit on the hub.`;
+  // open
+  show('o-payout-own', !!snap.payout_address && $('o-payout').value.trim() !== snap.payout_address);
+  if (snap.payout_address && !$('o-payout').value.trim() && document.activeElement !== $('o-payout')) $('o-payout').value = snap.payout_address;
+}
+
+async function refresh() {
+  if (!token && !TAURI) { show('notoken', true); return; }
+  try { S = await api('GET', '/api/state'); render(); } catch (e) { $('conn').textContent = 'wallet stopped?'; $('conn').className = 'pill bad'; }
+}
+(async () => {
+  try { PRESETS = await api('GET', '/api/presets'); } catch {}
+  refresh();
+  setInterval(refresh, 2000);
+})();
+</script>
+</body>
+</html>

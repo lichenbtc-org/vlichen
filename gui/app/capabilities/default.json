@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The main window: the wallet's API is the app's own command; a backup saved and read through the file picker",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:allow-save", "dialog:allow-open", "fs:allow-write-text-file", "fs:allow-read-text-file"]
+}
