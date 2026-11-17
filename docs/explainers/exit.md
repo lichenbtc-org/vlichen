@@ -5,7 +5,7 @@ sequencer, wants her money: she claims her notes on Bitcoin, and the hub
 must prove her claim false, or pay. She proves nothing. Played on
 Mutinynet (2026-11-11) on the real statement: every ending of the
 dispute, with the hub's proofs made on its own server. The design is
-the [paper](../../papers/lichen-v0.5.0.pdf)'s.
+the [paper](https://github.com/lichenbtc-org/lichen/blob/master/papers/lichen.pdf)'s.
 
 ## The problem
 
